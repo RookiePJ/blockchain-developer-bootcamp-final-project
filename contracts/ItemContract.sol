@@ -10,6 +10,7 @@ pragma solidity >=0.8.0 <0.9.0;
 // 19/11/21 | PJR | Reduced complexity                  | removed some of the types in the item storage stuct (may revisit - time dependant)
 // 19/11/21 | PJR | Ability to create item by owner     | add item function with modifer added
 // 19/11/21 | PJR | Authorisation functionality needed  | implemented the authorisation functionality (with tests)
+// 22/11/21 | PJR | Don't reinventing the Owner wheel   | decided to implement openZepplin Ownable design pattern, refactor code.
 
 // Todo     | PJR | Difficult to modify mapping types   | use open zepplin set library to hold item stuct mapping and rework code
 // Todo     | PJR | Change owner required               | implement and create tests
@@ -28,7 +29,13 @@ pragma solidity >=0.8.0 <0.9.0;
 /// @author Peter Rooke
 /// @notice Allows authentication of items using owership history and/or by providing a unique identification
 
-contract ItemContract {
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+//import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v3.4/contracts/utils/Counters.sol";
+//import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v3.4/contracts/access/Ownable.sol";
+
+contract ItemContract is Ownable {
 
 /** Storage Data */
 
@@ -72,10 +79,10 @@ contract ItemContract {
 
   /// @notice check that the account address calling the function is the owner of the contract
   /// @param _accountAddress - account address
-  modifier isContractOwner(address _accountAddress) {
-    require(_accountAddress == contractOwner, "Only the contract owner can perform this");
-    _;
-  }
+  //modifier onlyOwner(address _accountAddress) {
+  //  require(_accountAddress == contractOwner, "Only the contract owner can perform this");
+  //  _;
+  //}
 
   /// @notice check that the account address is the current owner address given in the items mapping
   /// @param _accountAddress - account address
@@ -101,7 +108,7 @@ contract ItemContract {
       string memory _itemDescription,
       string memory _uniqueId)
       public
-      isContractOwner(msg.sender)
+      onlyOwner()
       returns (bool newItemCreatedSuccess)
   {
       newItemCreatedSuccess = false;
@@ -246,7 +253,8 @@ contract ItemContract {
   /// @notice given the unique id hash value at minting time, store it with the assocated item
   /// @return storedHashSuccess - true (is the contract owner) and (hash code has been stored) - false (not owner) or (not stored)
   function storeUniqueIdHash(bytes32 _uniqueIdHash)
-     private isContractOwner(msg.sender)
+     private
+     onlyOwner()
      returns (bool storedHashSuccess) { }
 
   /// @notice generateUniqueIdHash given an unique id generate its hash code. A simple zero knowledge proof
