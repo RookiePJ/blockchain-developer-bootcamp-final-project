@@ -1,20 +1,21 @@
 //Constants
 let ItemContract = artifacts.require("ItemContract");
+let {catchRevert} = require("./exceptionsHelpers.js");
+let BN = web3.utils.BN;
 
-//const { items: ItemStruct, isDefined, isPayable, isType } = require("./ast-helper");
-let {catchRevert} = require("./exceptionsHelpers.js");    // taken from the consensys supply chain exercise
+let DEBUG=false;       // set to true to get console log output
 
 contract("ItemContract", function (accounts) {
   const [owner,        // the contract owner, only account that can create items.
     retailAccount1,    // a retailer (shop) owns the item in order to sell it on to a customer
     retailAccount2,
-    customerAccount3,  // a customer owns the item, until they transfer it to another customer
+    customerAccount3,  // a customer owns the item, until they sell it to another customer
     customerAccount4,
     customerAccount5,
-    outsideAccount1   // outside customer, never owns items but checks authentication by calling functions with the owner account address
+    outsideAccount1   // outside customer, never owns items but checks authentication
   ] = accounts;
 
-    // create some test item data
+    // create some test data
     const ITEM_NAME_1 = "Item Name 1";
     const ITEM_DESC_1 = "Item Description 1";
     const ITEM_UNIQUE_ID_1 = "Secert 1";
@@ -41,7 +42,7 @@ contract("ItemContract", function (accounts) {
     // Test for the existance of variables within the storage data
     // note - possibly way too much testing here, would drive other developers mad!
     describe("Storage Data", () => {
-        it("Should have an owner", async () => {
+        it("Should have an contractOwner", async () => {
           assert.equal(typeof itemInstance.contractOwner, 'function', "the contract has no owner");
         });
 
@@ -61,26 +62,9 @@ contract("ItemContract", function (accounts) {
             assert(enumItemState.hasOwnProperty('Customer'), "The enum does not have a `Customer` value");
           });
           it("should define `Distoryed` as a ItemState", () => {
-            assert(enumItemState.hasOwnProperty('Distoryed'), "The enum does not have a `Distoryed` value");
+            assert(enumItemState.hasOwnProperty('Destroyed'), "The enum does not have a `Destroyed` value");
           });
         }) // Enum ItemState
-
-        /** NOT WORKING 
-        describe("Item struct", () => {
-          let itemStruct;
-          before(() => {
-            itemStruct = ItemStruct(ItemContract);
-
-            console.log(itemStruct);
-
-            assert(itemStruct !== null, "The contract should define an `Item Struct`");
-          });
-          it("should have a `itemName`", () => {
-            assert(isDefined(itemStruct)("itemName"), "Struct Item should have a `itemName` member");
-            //assert(isType(itemStruct)("itemName")("string"), "`itemName` should be of type `string`");
-          });
-        }); // Item struct
-        */
     }); // Storage Data
 
   // Use cases
@@ -89,45 +73,111 @@ contract("ItemContract", function (accounts) {
     // createNewItem function
     it("createNewItem: Owner account should be able to create a new item", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const result = await itemInstance.getItemData.call(owner);
-      //console.log(result);
+      const result = await itemInstance.getItemData.call(0);
+      if (DEBUG === true) { console.log(result); }
+
       assert.equal(result[0], ITEM_NAME_1, "the name of the new item should match the expected value");
       assert.equal(result[1], ITEM_DESC_1, "the description of the new item should match the expected value");
       assert.equal(result[2].toString(10), ItemContract.ItemState.New, "the state of the new item should match the expected value");
       assert.equal(result[3], owner, "the itemCreatorAddress of the new item should match the expected value");
       assert.equal(result[4].toString(66), ITEM_UNIQUE_ID_HASH_1, "the unique id hash of the new item should match the expected value");
     });
-    // createNewItem function from non contract owner account - should fail - revert due to modifier isContractOwner
-    it("createNewItem: Retail account should not be able to create a new item", async () => {
-      await catchRevert(
-        itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: retailAccount2})
-      );
+    // createNewItem another function
+    it("createNewItem: Owner account should be able to create another new item", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      const result = await itemInstance.getItemData.call(0);
+      if (DEBUG === true) { console.log(result); }
+
+      assert.equal(result[0], ITEM_NAME_2, "the name of the new item should match the expected value");
+      assert.equal(result[1], ITEM_DESC_2, "the description of the new item should match the expected value");
+      assert.equal(result[2].toString(10), ItemContract.ItemState.New, "the state of the new item should match the expected value");
+      assert.equal(result[3], owner, "the itemCreatorAddress of the new item should match the expected value");
+      assert.equal(result[4].toString(66), ITEM_UNIQUE_ID_HASH_2, "the unique id hash of the new item should match the expected value");
+    });
+    // createNewItem create three items function
+    it("createNewItem: Owner account should be able to create three new items", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const result1 = await itemInstance.getItemData.call(0);
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      const result2 = await itemInstance.getItemData.call(1);
+      await itemInstance.createNewItem(ITEM_NAME_3, ITEM_DESC_3, ITEM_UNIQUE_ID_3, {from: owner});
+      const result3 = await itemInstance.getItemData.call(2);
+
+      if (DEBUG === true) { console.log(result1); console.log(result2); console.log(result3); }
+      // first item
+      assert.equal(result1[0], ITEM_NAME_1, "the name of the new item should match the expected value");
+      assert.equal(result1[1], ITEM_DESC_1, "the description of the new item should match the expected value");
+      assert.equal(result1[2].toString(10), ItemContract.ItemState.New, "the state of the new item should match the expected value");
+      assert.equal(result1[3], owner, "the itemCreatorAddress of the new item should match the expected value");
+      assert.equal(result1[4].toString(66), ITEM_UNIQUE_ID_HASH_1, "the unique id hash of the new item should match the expected value");
+      // second item
+      assert.equal(result2[0], ITEM_NAME_2, "the name of the new item should match the expected value");
+      assert.equal(result2[1], ITEM_DESC_2, "the description of the new item should match the expected value");
+      assert.equal(result2[2].toString(10), ItemContract.ItemState.New, "the state of the new item should match the expected value");
+      assert.equal(result2[3], owner, "the itemCreatorAddress of the new item should match the expected value");
+      assert.equal(result2[4].toString(66), ITEM_UNIQUE_ID_HASH_2, "the unique id hash of the new item should match the expected value");
+      // third item
+      assert.equal(result3[0], ITEM_NAME_3, "the name of the new item should match the expected value");
+      assert.equal(result3[1], ITEM_DESC_3, "the description of the new item should match the expected value");
+      assert.equal(result3[2].toString(10), ItemContract.ItemState.New, "the state of the new item should match the expected value");
+      assert.equal(result3[3], owner, "the itemCreatorAddress of the new item should match the expected value");
+      assert.equal(result3[4].toString(66), ITEM_UNIQUE_ID_HASH_3, "the unique id hash of the new item should match the expected value");
     });
 
-    // authenticateHistory() function
-    it("authenticateHistory(): authenticate history of item - should return true", async () => {
+    // authenticateHistory(uint) function
+    it("authenticateHistory(unit): authenticate history of item - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_3, ITEM_DESC_3, ITEM_UNIQUE_ID_3, {from: owner});
-      const authHistoryResult1 = await itemInstance.authenticateHistory.call(owner);
+      const authHistoryResult1 = await itemInstance.authenticateHistory.call(0, {from: owner});
       assert.equal(authHistoryResult1, true, "authenticate item history should return true");
     });
+
+
+    // authenticateOwner(uint, string) function
+    it("authenticateOwner(uint, string): authenticate owner of item from owner account - should return true", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const authOwnerResult1 = await itemInstance.authenticateOwner(0, ITEM_UNIQUE_ID_1, {from: owner});
+      assert.equal(authOwnerResult1, true, "authenticate item owner should return true");
+    });
+
+    // authenticateOwner(uint, string) function - false
+    it("authenticateOwner(uint, string): authenticate owner of item from owner account with incorrect secret - should return false", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const authOwnerResult2 = await itemInstance.authenticateOwner(0, ITEM_UNIQUE_ID_3, {from: owner});
+      assert.equal(authOwnerResult2, false, "authenticate item owner should return false");
+    });
+
+    // authenticateHistoryOwner(uint, string) function
+    it("authenticateHistoryOwner(uint, string): authenticate history/owner of item from owner account - should return true", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      const authOwnerResult1 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_2, {from: owner});
+      assert.equal(authOwnerResult1, true, "authenticate item history/owner should return true");
+    });
+    // authenticateHistoryOwner(uint, string) function - false
+    it("authenticateHistoryOwner(uint, string): authenticate history/owner of item from owner account with incorrect secret - should return false", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const authOwnerResult2 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_3, {from: owner});
+      assert.equal(authOwnerResult2, false, "authenticate item history/owner should return false");
+    });
+
+    // checkUniqueIdHash function
+    it("checkUniqueIdHash: Check unique id hash should return true when passed the correct unique id", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const result3 = await itemInstance.checkUniqueIdHash(0, ITEM_UNIQUE_ID_1, {from: owner});
+      assert.equal(result3, true, "checking unique id hash should return true");
+    });
+    // checkUniqueIdHash function
+    it("checkUniqueIdHash: Check unique id hash should return false when passed the incorrect unique id", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const result4 = await itemInstance.checkUniqueIdHash(0, ITEM_UNIQUE_ID_2, {from: owner});
+      assert.equal(result4, false, "checking unique id hash should return false");
+    });
+
+    /*
     // authenticateHistory(address) function
     it("authenticateHistory(address): authenticate history of item from non item owner account - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
       const authHistoryResult2 = await itemInstance.authenticateHistory(owner, {from: outsideAccount1});
       assert.equal(authHistoryResult2, true, "authenticate item history should return true");
-    });
-
-    // authenticateOwner(string) function
-    it("authenticateOwner(string): authenticate owner of item from owner account - should return true", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const authOwnerResult1 = await itemInstance.authenticateOwner(ITEM_UNIQUE_ID_1, {from: owner});
-      assert.equal(authOwnerResult1, true, "authenticate item owner should return true");
-    });
-    // authenticateOwner(string) function - false
-    it("authenticateOwner(string): authenticate owner of item from owner account with incorrect secret - should return false", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const authOwnerResult2 = await itemInstance.authenticateOwner(ITEM_UNIQUE_ID_3, {from: owner});
-      assert.equal(authOwnerResult2, false, "authenticate item owner should return false");
     });
 
     // authenticateOwner(address, string) function
@@ -143,19 +193,6 @@ contract("ItemContract", function (accounts) {
       assert.equal(authOwnerResult2, false, "authenticate item owner should return false");
     });
 
-    // authenticateHistoryOwner(string) function
-    it("authenticateHistoryOwner(string): authenticate history/owner of item from owner account - should return true", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
-      const authOwnerResult1 = await itemInstance.authenticateHistoryOwner(ITEM_UNIQUE_ID_2, {from: owner});
-      assert.equal(authOwnerResult1, true, "authenticate item history/owner should return true");
-    });
-    // authenticateHistoryOwner(string) function - false
-    it("authenticateHistoryOwner(string): authenticate history/owner of item from owner account with incorrect secret - should return false", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const authOwnerResult2 = await itemInstance.authenticateHistoryOwner(ITEM_UNIQUE_ID_3, {from: owner});
-      assert.equal(authOwnerResult2, false, "authenticate item history/owner should return false");
-    });
-
     // authenticateHistoryOwner(address, string)
     it("authenticateHistoryOwner(address, string): authenticate history/owner of item from non owner account - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
@@ -168,23 +205,48 @@ contract("ItemContract", function (accounts) {
       const authOwnerResult2 = await itemInstance.authenticateHistoryOwner(owner, ITEM_UNIQUE_ID_1, {from: outsideAccount1});
       assert.equal(authOwnerResult2, false, "authenticate item history/owner should return false");
     });
+    */
 
-    // checkUniqueIdHash function
-    it("checkUniqueIdHash: Check unique id hash should return true when passed the correct unique id", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const result3 = await itemInstance.checkUniqueIdHash(owner, ITEM_UNIQUE_ID_1, {from: owner});
-      assert.equal(result3, true, "checking unique id hash should return true");
-    });
-    // checkUniqueIdHash function
-    it("checkUniqueIdHash: Check unique id hash should return false when passed the incorrect unique id", async () => {
-      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
-      const result4 = await itemInstance.checkUniqueIdHash(owner, ITEM_UNIQUE_ID_2, {from: owner});
-      assert.equal(result4, false, "checking unique id hash should return true");
-    });
 
     // transfer function
 
-  }); // Use Cases
+    });
+
+  // Admin / Pausable / Owner / Security Functions
+  describe("Admin / Onwer / Security Functions", () => {
+    it("Contract owner should be able to pause the contract", async () => {
+      const pause = await itemInstance.pause({from: owner});
+      const pauseResult = await itemInstance.paused({from: owner});
+      assert.equal(pauseResult, true, "checking that the contract has been paused");
+    });
+    it("Contract owner should be able to unpause the contract", async () => {
+      const pause = await itemInstance.pause({from: owner});
+      const unpause = await itemInstance.unpause({from: owner});
+      const unPauseResult = await itemInstance.paused({from: owner});
+      assert.equal(unPauseResult, false, "checking that the contract has been unpaused (after being first paused)");
+    });
+    it("Paused contract should not be able to create a new item whenNotPaused() modifier", async () => {
+      const pause = await itemInstance.pause({from: owner});
+      await catchRevert(
+        itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner})
+      );
+    });
+    it("NoncContract owner should not be able to pause the contract", async () => {
+      await catchRevert( itemInstance.pause({from: outsideAccount1}) );
+    });
+    // createNewItem function from non contract owner account - should fail - revert due to modifier isContractOwner
+    it("createNewItem: Retail account should not be able to create a new item", async () => {
+      await catchRevert(
+        itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: retailAccount2})
+      );
+    });
+
+
+
+  }) // End of Admin / Owner / Security Functions
+
+
+
 
   // others itemAccount1 should not be able to creaete new items
 
