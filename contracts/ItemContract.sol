@@ -12,6 +12,7 @@ pragma solidity ^0.8.0;
 // 19/11/21 | PJR | Authorisation functionality needed  | implemented the authorisation functionality (with tests)
 // 22/11/21 | PJR | Don't reinventing the Owner wheel   | decided to implement openZepplin Ownable design pattern, refactor code.
 // 22/11/21 | PJR | Found functionality in Oz preset    | merged existing code with the NFT preset ERC1155PresetMinterPauser from open zepplin
+// 23/11/21 | PJR | Ability to destroy                  | created function to burn nft and blank out item (logical delete)
 
 // Todo     | PJR | Difficult to modify mapping types   | use open zepplin set library to hold item stuct mapping and rework code
 // Todo     | PJR | Change owner required               | implement and create tests
@@ -55,6 +56,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
     /** Storage Data */
     address public contractOwner;      // @dev The address of the contracts owner, given by the deployment address
 
+    /// todo
     uint public constant ITEM_TYPE_CUSTOM = 0;
     uint public constant ITEM_TYPE_DIAMOND = 1;
     uint public constant ITEM_TYPE_RUBY = 2;
@@ -103,7 +105,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   event ItemOwerChangedEvent(
       address _oldOwner,
       address _newOwner,
-      ItemState _oldItemState, 
+      ItemState _oldItemState,
       ItemState _newItemState
   );
 
@@ -170,18 +172,43 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
         itemCreatorAddress: msg.sender,
         itemUniqueHash: itemUniqueHashNew
       });
-      items[itemCount++] = item;                // @dev use value and then ++ (so zero is first element)
-      //items[0] = item;
-      _mint(msg.sender, 1, 1, "");              // @dev for now we are just creating one of one type of NFT
-      //emit CreatedItemEvent(
-      //    msg.sender,
-      //    itemCount,
-     //     items[itemCount].itemName,
-     //     items[itemCount].itemDescription,
-     //     items[itemCount].itemState,
-     //     items[itemCount].itemCreatorAddress,
-     //     items[itemCount].itemUniqueHash);
+      items[itemCount++] = item;       // @dev use value and then ++ (so zero is first element)
+      _mint(msg.sender, 1, 1, "");     // @dev for now we are just creating one of one type of NFT (todo different types)
+      emit CreatedItemEvent(
+          msg.sender,
+          itemCount,
+          items[itemCount].itemName,
+          items[itemCount].itemDescription,
+          items[itemCount].itemState,
+          items[itemCount].itemCreatorAddress,
+          items[itemCount].itemUniqueHash);
       return (newItemCreatedSuccess = true);
+  }
+
+  /// @notice destory an item if the correct secret is given. Logicical delete and burn nft
+  /// @notice must be the contract owner
+  /// @param _itemIndex the index for the item to be destroyed
+  /// @param _uniqueId the secert phrase is required to remove the item
+  /// @return itemBurntSuccess - true if logicially deleted and nft burnt - false if otherwise
+  function destroyItem(
+      uint _itemIndex,
+      string memory _uniqueId)
+      public
+      onlyOwner()
+      whenNotPaused()
+      returns (bool itemBurntSuccess) {
+        if (checkUniqueIdHash(_itemIndex, _uniqueId)) {
+            items[_itemIndex].itemName = "deleted";   /// @dev do a logicical delete
+            items[_itemIndex].itemDescription = "deleted";
+            items[_itemIndex].itemState = ItemState.Destroyed;
+            items[_itemIndex].itemCreatorAddress = address(0x0);
+            items[_itemIndex].itemUniqueHash = "0-deleted-0";
+            burn(msg.sender, 1, 1);
+            itemBurntSuccess = true;
+        } else {
+          itemBurntSuccess = false;
+          revert("destroyItem: incorrect unique secreti provided, unable to destroy item");
+        }
   }
 
   /// @notice authenticate item history using owners {msg.sender} address
@@ -196,7 +223,6 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
        isAuthentic = (items[_itemIndex].itemCreatorAddress == contractOwner);
        //emit AuthenticateEvent(msg.sender, _itemIndex, isAuthentic);
   }
-
 
    /** --> Owner authentication function */
 

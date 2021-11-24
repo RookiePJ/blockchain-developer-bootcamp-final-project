@@ -3,7 +3,7 @@ let ItemContract = artifacts.require("ItemContract");
 let {catchRevert} = require("./exceptionsHelpers.js");
 let BN = web3.utils.BN;
 
-let DEBUG=false;       // set to true to get console log output
+let DEBUG=true;       // set to true to get console log output
 
 contract("ItemContract", function (accounts) {
   const [owner,        // the contract owner, only account that can create items.
@@ -240,8 +240,21 @@ contract("ItemContract", function (accounts) {
         itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: retailAccount2})
       );
     });
-
-
+    // ower should be able to burn item / nft
+    it("Contract owner should be able to burn item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const burnt1 = await itemInstance.destroyItem(0, ITEM_UNIQUE_ID_1, {from: owner});
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
+    });
+    // non owner should not be able to burn item / nft
+    it("Non contract owner should not be able to burn item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      await catchRevert( itemInstance.destroyItem(0, ITEM_UNIQUE_ID_2, {from: retailAccount1}) );
+    });
+    it("Contract owner providing the wrong secret phrase should not be able to burn item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      await catchRevert( itemInstance.destroyItem(0, ITEM_UNIQUE_ID_3, {from: owner}) );
+    });
 
   }) // End of Admin / Owner / Security Functions
 
