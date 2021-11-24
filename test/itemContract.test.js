@@ -3,7 +3,7 @@ let ItemContract = artifacts.require("ItemContract");
 let {catchRevert} = require("./exceptionsHelpers.js");
 let BN = web3.utils.BN;
 
-let DEBUG=true;       // set to true to get console log output
+let DEBUG=false;       // set to true to get console log output
 
 contract("ItemContract", function (accounts) {
   const [owner,        // the contract owner, only account that can create items.
@@ -165,14 +165,14 @@ contract("ItemContract", function (accounts) {
       const result3 = await itemInstance.checkUniqueIdHash(0, ITEM_UNIQUE_ID_1, {from: owner});
       assert.equal(result3, true, "checking unique id hash should return true");
     });
-    // checkUniqueIdHash function
+    // checkUniqueIdHash function - false
     it("checkUniqueIdHash: Check unique id hash should return false when passed the incorrect unique id", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       const result4 = await itemInstance.checkUniqueIdHash(0, ITEM_UNIQUE_ID_2, {from: owner});
       assert.equal(result4, false, "checking unique id hash should return false");
     });
 
-    /*
+    /* -- todo
     // authenticateHistory(address) function
     it("authenticateHistory(address): authenticate history of item from non item owner account - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
@@ -207,13 +207,13 @@ contract("ItemContract", function (accounts) {
     });
     */
 
-
-    // transfer function
+    // transfer function - todo!
 
     });
 
   // Admin / Pausable / Owner / Security Functions
-  describe("Admin / Onwer / Security Functions", () => {
+  describe("Admin / Pausable / Onwer / Security Functions", () => {
+    // --> Pausing Contract <--
     it("Contract owner should be able to pause the contract", async () => {
       const pause = await itemInstance.pause({from: owner});
       const pauseResult = await itemInstance.paused({from: owner});
@@ -234,13 +234,13 @@ contract("ItemContract", function (accounts) {
     it("NoncContract owner should not be able to pause the contract", async () => {
       await catchRevert( itemInstance.pause({from: outsideAccount1}) );
     });
-    // createNewItem function from non contract owner account - should fail - revert due to modifier isContractOwner
+    // --> Creating <-- createNewItem function from non contract owner account - should fail - revert due to modifier isContractOwner
     it("createNewItem: Retail account should not be able to create a new item", async () => {
       await catchRevert(
         itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: retailAccount2})
       );
     });
-    // ower should be able to burn item / nft
+    // --> Burning <-- Ower should be able to burn item / nft
     it("Contract owner should be able to burn item and nft", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       const burnt1 = await itemInstance.destroyItem(0, ITEM_UNIQUE_ID_1, {from: owner});
@@ -255,12 +255,15 @@ contract("ItemContract", function (accounts) {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       await catchRevert( itemInstance.destroyItem(0, ITEM_UNIQUE_ID_3, {from: owner}) );
     });
-
+    /* Todo code is not working
+    // --> Approve <--
+    it("Contract owner should be able to approve address for token transfer", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const approveResult = await itemInstance.approveAddress(retailAccount1, {from: owner});
+      console.log("approveResult " + approveResult);
+      assert.equal(approveResult, true, "checking that the address has been approved");
+    });
+    */
   }) // End of Admin / Owner / Security Functions
-
-
-
-
-  // others itemAccount1 should not be able to creaete new items
 
 });  // contract ItemContract

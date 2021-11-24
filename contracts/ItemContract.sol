@@ -14,9 +14,8 @@ pragma solidity ^0.8.0;
 // 22/11/21 | PJR | Found functionality in Oz preset    | merged existing code with the NFT preset ERC1155PresetMinterPauser from open zepplin
 // 23/11/21 | PJR | Ability to destroy                  | created function to burn nft and blank out item (logical delete)
 
-// Todo     | PJR | Difficult to modify mapping types   | use open zepplin set library to hold item stuct mapping and rework code
-// Todo     | PJR | Change owner required               | implement and create tests
-// Todo     | PJR | Increase contract security owner    | implement ower functionality from open zepplin
+// Todo     | PJR | Change to single struct (see below) | remove mapping, just use a single stuct item for each NFT, and then change all the tests
+// Todo     | PJR | Tranfer and change owner required   | implement and create tests
 // Todo     | PJR | Record ownership history            | implement some sort of history ownership
 // Todo     | PJR | Ability to pay in ether for items   | implement payments when transfer items (not part of original scope)
 
@@ -24,6 +23,8 @@ pragma solidity ^0.8.0;
 // 1) The proof of historic ownership tracing back ownership is somewhat redundant as only the owner can create items.
 //    Only authentic item exist anyway!  Exercise was a programming not a practical solution so left basic functionality in.
 // 2) Code has a bad smell, with too many functions with not much code. Possibly needs refactoring.
+// 3) Data stucture mapping is not really needed - should really just be a single stuct item for a token!
+//    Also token data standard seems to be held off-chain in some URI JSON - todo as its now too late to rework!
 
 /// @title Item proof of ownership contract
 /// @author Peter Rooke
@@ -118,15 +119,17 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
 
 /* **Modifiers** */
 
+  /// todo - grap the owner address compair with msg.sender
   /// @notice check that the account address is the current owner address given in the items mapping
   /// @param _accountAddress - account address
-  modifier isItemOwner(address _accountAddress) { _; }
+  modifier onlyItemOwner(address _accountAddress) { _; } // do something with address a = ownerOf(uint tokenId)
 
 /* **Functions** */
 
     /** --> Constuctor */
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE`, and `PAUSER_ROLE` to the account that deploys the contract.
+     * @dev store the contract owner address
      */
     constructor() ERC1155("") {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -185,6 +188,29 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       return (newItemCreatedSuccess = true);
   }
 
+  /* todo - unable to get a clean unit test to pass for this code - not sure why - and no time!
+  /// @notice allow contract owner to approve an address so that it can transfer
+  /// @param _addressToApprove - the address to approve
+  /// @return approvedAddressSuccess - return value (applogies, compiler enforces descriptions!)
+  function approveAddress(address _addressToApprove)
+     public
+     onlyOwner()
+     whenNotPaused()
+     returns (bool approvedAddressSuccess)
+  {
+     //approve(_addressToApprove, 1);
+     setApprovalForAll(_addressToApprove, true);   // since we only have one token type anyway!
+     approvedAddressSuccess = isApprovedForAll(msg.sender, _addressToApprove);
+  }
+  */
+
+  /// @notice todo transfer item after approval
+  /// -param _to
+  /// -param _itemIndex
+  /// -return transferItemSuccess
+  /** function transferItem(address _to, _itemIndex) returns (bool transferItemSuccess) */
+
+
   /// @notice destory an item if the correct secret is given. Logicical delete and burn nft
   /// @notice must be the contract owner
   /// @param _itemIndex the index for the item to be destroyed
@@ -207,7 +233,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
             itemBurntSuccess = true;
         } else {
           itemBurntSuccess = false;
-          revert("destroyItem: incorrect unique secreti provided, unable to destroy item");
+          revert("destroyItem: incorrect unique secret provided, unable to destroy item");
         }
   }
 
@@ -218,7 +244,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   function authenticateHistory(uint _itemIndex)
      public
      view
-     isItemOwner(msg.sender)
+     onlyItemOwner(msg.sender)
      returns (bool isAuthentic) {
        isAuthentic = (items[_itemIndex].itemCreatorAddress == contractOwner);
        //emit AuthenticateEvent(msg.sender, _itemIndex, isAuthentic);
@@ -234,7 +260,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   function authenticateOwner(uint _itemIndex, string memory _uniqueId)
      public
      view
-     isItemOwner(msg.sender)
+     onlyItemOwner(msg.sender)
      returns (bool isAuthentic) {
      return (checkUniqueIdHash(_itemIndex, _uniqueId));
        //isAuthentic = checkUniqueIdHash(_itemIndex, _uniqueId);
@@ -254,7 +280,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   function authenticateHistoryOwner(uint _itemIndex, string memory _uniqueId)
      public
      view
-     isItemOwner(msg.sender)
+     onlyItemOwner(msg.sender)
      returns (bool isAuthentic) {
 
          return ( authenticateHistory(_itemIndex) && authenticateOwner(_itemIndex, _uniqueId) );
