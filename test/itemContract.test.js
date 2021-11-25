@@ -3,17 +3,19 @@ let ItemContract = artifacts.require("ItemContract");
 let {catchRevert} = require("./exceptionsHelpers.js");
 let BN = web3.utils.BN;
 
-let DEBUG=false;       // set to true to get console log output
+let DEBUG=true;       // set to true to get console log output
 
 contract("ItemContract", function (accounts) {
   const [owner,        // the contract owner, only account that can create items.
     retailAccount1,    // a retailer (shop) owns the item in order to sell it on to a customer
     retailAccount2,
-    customerAccount3,  // a customer owns the item, until they sell it to another customer
-    customerAccount4,
-    customerAccount5,
+    customerAccount1,  // a customer owns the item, until they sell it to another customer
+    customerAccount2,
+    customerAccount3,
     outsideAccount1   // outside customer, never owns items but checks authentication
   ] = accounts;
+
+  if (DEBUG === true) { console.log(accounts); }
 
     // create some test data
     const ITEM_NAME_1 = "Item Name 1";
@@ -70,7 +72,7 @@ contract("ItemContract", function (accounts) {
   // Use cases
   describe("Use cases", () => {
 
-    // createNewItem function
+    // --> Create Item <-- createNewItem function
     it("createNewItem: Owner account should be able to create a new item", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       const result = await itemInstance.getItemData.call(0);
@@ -94,7 +96,7 @@ contract("ItemContract", function (accounts) {
       assert.equal(result[3], owner, "the itemCreatorAddress of the new item should match the expected value");
       assert.equal(result[4].toString(66), ITEM_UNIQUE_ID_HASH_2, "the unique id hash of the new item should match the expected value");
     });
-    // createNewItem create three items function
+    // createNewItem create three new items
     it("createNewItem: Owner account should be able to create three new items", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       const result1 = await itemInstance.getItemData.call(0);
@@ -124,14 +126,12 @@ contract("ItemContract", function (accounts) {
       assert.equal(result3[4].toString(66), ITEM_UNIQUE_ID_HASH_3, "the unique id hash of the new item should match the expected value");
     });
 
-    // authenticateHistory(uint) function
+    // --> Authenticate <-- authenticateHistory(uint) function
     it("authenticateHistory(unit): authenticate history of item - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_3, ITEM_DESC_3, ITEM_UNIQUE_ID_3, {from: owner});
       const authHistoryResult1 = await itemInstance.authenticateHistory.call(0, {from: owner});
       assert.equal(authHistoryResult1, true, "authenticate item history should return true");
     });
-
-
     // authenticateOwner(uint, string) function
     it("authenticateOwner(uint, string): authenticate owner of item from owner account - should return true", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
@@ -171,6 +171,40 @@ contract("ItemContract", function (accounts) {
       const result4 = await itemInstance.checkUniqueIdHash(0, ITEM_UNIQUE_ID_2, {from: owner});
       assert.equal(result4, false, "checking unique id hash should return false");
     });
+    // --> Destory Item <--
+    it("destroyItem(uint, string): owner should be able to destory item - delete item and burn nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      const burnt1 = await itemInstance.destroyItem(0, ITEM_UNIQUE_ID_2, {from: owner});
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
+    });
+    // --> Transfer Item <--
+    it("transferToAddress(address, uint): should be able to transfer item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      const transfer1 = await itemInstance.transferToAddress(retailAccount1, 1, {from: owner});
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
+    });
+    it("transferToAddress(address, uint): should be able to transfer (x2) item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const transfer1 = await itemInstance.transferToAddress(retailAccount1, 1, {from: owner});
+      const transfer2 = await itemInstance.transferToAddress(customerAccount1, 1, {from: retailAccount1});
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
+    });
+    // --> Full lifecycle use case <--
+    it("A full lifecycle use case; create, transfer, authenticate, destroy", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
+      const authOwnerResultF1 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: owner});
+      // to retail account 1 and authorise
+      const transferF1 = await itemInstance.transferToAddress(retailAccount1, 1, {from: owner});
+      const authOwnerResultF2 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: retailAccount1});
+      // to customer account 1 and authorise
+      const transferF2 = await itemInstance.transferToAddress(customerAccount1, 1, {from: retailAccount1});
+      const authOwnerResultF3 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: customerAccount1});
+      // to owner and then destoryed
+      const transferF3 = await itemInstance.transferToAddress(owner, 1, {from: customerAccount1});
+      const burntF = await itemInstance.destroyItem(0, ITEM_UNIQUE_ID_1, {from: owner});
+
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
+    });
 
     /* -- todo
     // authenticateHistory(address) function
@@ -206,8 +240,6 @@ contract("ItemContract", function (accounts) {
       assert.equal(authOwnerResult2, false, "authenticate item history/owner should return false");
     });
     */
-
-    // transfer function - todo!
 
     });
 
@@ -254,6 +286,12 @@ contract("ItemContract", function (accounts) {
     it("Contract owner providing the wrong secret phrase should not be able to burn item and nft", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       await catchRevert( itemInstance.destroyItem(0, ITEM_UNIQUE_ID_3, {from: owner}) );
+    });
+    // --> Transfer Item <--
+    it("transferToAddress(address, uint): Non item owner should not be able to transfer item and nft", async () => {
+      await itemInstance.createNewItem(ITEM_NAME_2, ITEM_DESC_2, ITEM_UNIQUE_ID_2, {from: owner});
+      await catchRevert( itemInstance.transferToAddress(retailAccount1, 1, {from: retailAccount1}) );
+      if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
     });
     /* Todo code is not working
     // --> Approve <--

@@ -13,17 +13,20 @@ pragma solidity ^0.8.0;
 // 22/11/21 | PJR | Don't reinventing the Owner wheel   | decided to implement openZepplin Ownable design pattern, refactor code.
 // 22/11/21 | PJR | Found functionality in Oz preset    | merged existing code with the NFT preset ERC1155PresetMinterPauser from open zepplin
 // 23/11/21 | PJR | Ability to destroy                  | created function to burn nft and blank out item (logical delete)
+// 25/11/21 | PJR | Delete item in mapping              | now deleting mapped stuct item using index
+// 25/11/21 | PJR | Ability to transfer items           | created transferToAddress function
+// 25/11/21 | PJR | Store current owers address         | Added currentOwnerAddress to item stuct
 
 // Todo     | PJR | Change to single struct (see below) | remove mapping, just use a single stuct item for each NFT, and then change all the tests
-// Todo     | PJR | Tranfer and change owner required   | implement and create tests
 // Todo     | PJR | Record ownership history            | implement some sort of history ownership
 // Todo     | PJR | Ability to pay in ether for items   | implement payments when transfer items (not part of original scope)
+// Todo     | PJR | Keep history of deleted items       | add data stucture and implement
 
 // General notes and known issues
 // 1) The proof of historic ownership tracing back ownership is somewhat redundant as only the owner can create items.
 //    Only authentic item exist anyway!  Exercise was a programming not a practical solution so left basic functionality in.
 // 2) Code has a bad smell, with too many functions with not much code. Possibly needs refactoring.
-// 3) Data stucture mapping is not really needed - should really just be a single stuct item for a token!
+// 3) Data stucture mapping is not really needed - should really just be a single stuct item for each NFT token!
 //    Also token data standard seems to be held off-chain in some URI JSON - todo as its now too late to rework!
 
 /// @title Item proof of ownership contract
@@ -75,6 +78,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       ItemState itemState;         // @dev the current state of the item
       address itemCreatorAddress;  // @dev a record of the creators address
       bytes32 itemUniqueHash;      // @dev hold a hash value of a unqiue identifier for the item. ZKP by compairing hashs
+      address itemOwnerAddress;    // @dev the curent owner
     }
     enum ItemState { New, Retail, Customer, Destroyed }  // State of the item
 
@@ -173,7 +177,8 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
         itemDescription: _itemDescription,
         itemState: ItemState.New,
         itemCreatorAddress: msg.sender,
-        itemUniqueHash: itemUniqueHashNew
+        itemUniqueHash: itemUniqueHashNew,
+        itemOwnerAddress: msg.sender
       });
       items[itemCount++] = item;       // @dev use value and then ++ (so zero is first element)
       _mint(msg.sender, 1, 1, "");     // @dev for now we are just creating one of one type of NFT (todo different types)
@@ -205,17 +210,27 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   */
 
   /// @notice todo transfer item after approval
-  /// -param _to
-  /// -param _itemIndex
-  /// -return transferItemSuccess
-  /** function transferItem(address _to, _itemIndex) returns (bool transferItemSuccess) */
+  /// @param _toAddress - to send to
+  /// @param _id - id
+  /// @return transferItemSuccess
+  function transferToAddress(address _toAddress, uint _id)
+     public
+     whenNotPaused
+     returns (bool transferItemSuccess)
+  {
+     uint state = uint(items[_id].itemState);
+     if (state < 3) { items[_id].itemState = ItemState(state); } // increment itemState but not to destoryed
+     items[_id].itemOwnerAddress = _toAddress;
+     safeTransferFrom(msg.sender, _toAddress, _id, 1, "");
+     return true;
+  }
 
 
   /// @notice destory an item if the correct secret is given. Logicical delete and burn nft
   /// @notice must be the contract owner
   /// @param _itemIndex the index for the item to be destroyed
   /// @param _uniqueId the secert phrase is required to remove the item
-  /// @return itemBurntSuccess - true if logicially deleted and nft burnt - false if otherwise
+  /// @return itemBurntSuccess - true if deleted and nft burnt - false if otherwise
   function destroyItem(
       uint _itemIndex,
       string memory _uniqueId)
@@ -225,10 +240,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       returns (bool itemBurntSuccess) {
         if (checkUniqueIdHash(_itemIndex, _uniqueId)) {
             items[_itemIndex].itemName = "deleted";   /// @dev do a logicical delete
-            items[_itemIndex].itemDescription = "deleted";
-            items[_itemIndex].itemState = ItemState.Destroyed;
-            items[_itemIndex].itemCreatorAddress = address(0x0);
-            items[_itemIndex].itemUniqueHash = "0-deleted-0";
+            delete items[_itemIndex];    // @dev we do get empty mappings!
             burn(msg.sender, 1, 1);
             itemBurntSuccess = true;
         } else {
