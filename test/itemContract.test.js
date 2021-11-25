@@ -205,7 +205,7 @@ contract("ItemContract", function (accounts) {
       if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
     });
 
-    // --> Full lifecycle use case <--
+    // --> Full lifecycle use case <-- Create -> Owner -> Retailer -> Customer -> Owner -> Destoryed
     it("A full lifecycle use case; create, transfer, authenticate, destroy", async () => {
       await itemInstance.createNewItem(ITEM_NAME_1, ITEM_DESC_1, ITEM_UNIQUE_ID_1, {from: owner});
       const authOwnerResultF1 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: owner});
@@ -216,6 +216,7 @@ contract("ItemContract", function (accounts) {
       const result3 = await itemInstance.getItemData.call(0);
       assert.equal(result3[5], retailAccount1, "the itemOwnerAddress of the new item should match the expected value - 1");
       const authOwnerResultF2 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: retailAccount1});
+      assert.equal(authOwnerResultF2, true, "authenticate item history/owner should return true - 1");
       if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
 
       // to customer account 1 and authenticate
@@ -223,6 +224,7 @@ contract("ItemContract", function (accounts) {
       const result4 = await itemInstance.getItemData.call(0);
       assert.equal(result4[5], customerAccount1, "the itemOwnerAddress of the new item should match the expected value - 2");
       const authOwnerResultF3 = await itemInstance.authenticateHistoryOwner(0, ITEM_UNIQUE_ID_1, {from: customerAccount1});
+      assert.equal(authOwnerResultF3, true, "authenticate item history/owner should return true");
       if (DEBUG === true) { const result = await itemInstance.getItemData.call(0); console.log(result); }
 
       // to owner and then destoryed
