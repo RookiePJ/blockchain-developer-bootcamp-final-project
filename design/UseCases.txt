@@ -1,0 +1,123 @@
+**Primary Business Benefit**
+Solution for consumers to verify the authenticity of (luxury) goods.
+
+**Potental Actors / Use Cases**
+
+          ItemOwner*      --> Create New Item (minting)         (create)
+                          --> Deliver new Item to Retailer      (transfer)
+                          --> Sell new Item to Customer         (transfer)
+                          --> Authenticate Item                 (authenticateHistory / authenticateOwner / authenticateHistoryOwner)
+
+          Retailer        --> Receive Item from Creator         (transfer)
+                          --> Return Item to Creator [faulty]a  (transfer)
+                          --> Sell Item to Customer             (transfer)
+                          --> Authenticate Item
+
+          Customer        --> Purchase Item                     (transfer)
+                          --> Resell or transfer Item to new Customer  (transfer)
+                          --> Replace/Refunded Item, if Item proven to be faulty and original returned  (transfer)
+                          --> Authenticate Item                 (authenticateHistory / authenticateOwner / authenticateHistoryOwner)
+
+          ContractOwner   --> Update existing software
+                          --> Stop deployed software (fatal issue found)
+
+          [Creator is now renamed ItemOwner]
+          [Admin is now renamed ContractOwner]
+
+
+**Potential Further Objectives**
+   - Extend to include other types of items.
+   - Extend into other markets, manufacturing, agriculture, food production, shipping.
+
+**Functions**
+
+/** --> Creation functions */
+
+/// @notice create a new item if the calling address is the contract owner
+/// @param _itemName - short name for the item
+/// @param _itemDescription - short description
+/// @param _uniqueId - a secret which is used to help authentice the item.
+/// @dev _uniqueId becomes a hashcode which is then stored as a basic zero knownledge proof
+function createNewItem(
+      string memory _itemName,
+      string memory _itemDescription,
+      string memory _uniqueId)
+      public
+      onlyOwner()
+      whenNotPaused()
+      returns (bool newItemCreatedSuccess) { }
+
+
+/** --> Transfer item ownership functions */
+
+/// @notice transfer item
+/// @param _toAddress - to send to
+/// @param _itemIndex - itemIndex
+/// @return transferItemSuccess
+function transferToAddress(address _toAddress, uint _itemIndex)
+     public
+     whenNotPaused
+     returns (bool transferItemSuccess) { }
+
+
+/** --> Destroy item */
+
+/// @notice destory an item if the correct secret is given. Logicical delete and burn nft
+/// @notice must be the contract owner
+/// @param _itemIndex the index for the item to be destroyed
+/// @param _uniqueId the secert phrase is required to remove the item
+/// @return itemBurntSuccess - true if deleted and nft burnt - false if otherwise
+function destroyItem(
+      uint _itemIndex,
+      string memory _uniqueId)
+      public
+      onlyOwner()
+      whenNotPaused()
+      returns (bool itemBurntSuccess) { }
+
+
+/** --> History authentication functions */
+
+/// @notice authenticate item history using owners {msg.sender} address
+/// -param {msg.sender} - the current owners address.
+/// @param _itemIndex index of the item to check
+/// @return isAuthentic - true if the owners address can be traced back to the original verified minter (creator) o>
+function authenticateHistory(uint _itemIndex)
+     public
+     view
+     onlyItemOwner(msg.sender)
+     returns (bool isAuthentic) { }
+
+
+/** --> Owner authentication function */
+
+/// @notice authenticate item by compairing the hash code of the provided _uniqueId with the stored hash code of t>
+/// -param {msg.sender} - the account address that called the function - should be the owner of the item
+/// @param _itemIndex - the item index
+/// @param _uniqueId - a unique id that can be used to tie to a physical item - car registration number, serial num
+/// @return isAuthentic - true (called by the owners account) and (the hash codes match) - false (if not the owner>
+function authenticateOwner(uint _itemIndex, string memory _uniqueId)
+     public
+     view
+     onlyItemOwner(msg.sender)
+     returns (bool isAuthentic) { }
+
+
+/** --> Owner and History authentication function */
+
+ /// @notice authenticateHistoryOwner authenticate item using both its owners history and owners unique id
+  /// -param {msg.sender} the account address of the items owner
+  /// @param _itemIndex - the item index
+  /// @param _uniqueId the unique id taken from the physical item
+  /// @notice called by the owners address who has knowledge of the items unique id
+  /// @return isAuthentic - true (msg.sender owns the item) and (the hashes match) - false (msg.sender is not owner) >
+  function authenticateHistoryOwner(uint _itemIndex, string memory _uniqueId)
+     public
+     view
+     onlyItemOwner(msg.sender)
+     returns (bool isAuthentic) { }
+
+--------------------------------------------------------------------------------------------
+General note - it would have been nice to seperate out the specification into interfaces and
+               the implementation in contract files.  But proved too difficult since I'm too
+               new to solidity.
