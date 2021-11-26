@@ -17,7 +17,13 @@ pragma solidity ^0.8.0;
 // 25/11/21 | PJR | Ability to transfer items           | created transferToAddress function
 // 25/11/21 | PJR | Store current owers address         | Added currentOwnerAddress to item stuct
 // 25/11/21 | PJR | Bug in transfer function            | Fixed bug in transfer - was not storing new address
-// 25/11/21 | PJR | Starting to hit deploy gas limit    | That's all folks - needs refactoring to reduce gas
+// 25/11/21 | PJR | Starting to hit deploy gas limit    | switched on optimiser in truffle - however needs refactoring to reduce gas
+// 26/11/21 | PJR | Fixed state bug                     | now incrementing the state when transfering item
+// 26/11/21 | PJR | modifier was missing brackets?      | added brackets to whenNotPaused modifier - compiler did not pick this up?
+// 26/11/21 | PJR | onlyItemOwner modifier              | implemented and tested
+// 26/11/21 | PJR | event when item is destroyed        | implemented event and tested
+// 26/11/21 | PJR | --> Release 1.0 <--                 | deployed onto ropsten / rinkeby testnets
+
 
 // Todo     | PJR | To reduce gas                       | reduce gas at deployment and run times
 // Todo     | PJR | Change to single struct (see below) | remove mapping, just use a single stuct item for each NFT, and then change all the tests
@@ -36,7 +42,8 @@ pragma solidity ^0.8.0;
 /// @author Peter Rooke
 /// @notice Allows authentication of items using owership history and/or by providing a unique identification
 /// @dev based upon the ERC1155PresetMinterPauser.sol preset sample code as it offers the ability to mint, pause, and role based access for an ERC1155 NFT token
-/// @dev my existing functions now provide a wrapper around the base ERC functions
+/// @dev my existing functions now provide a wrapper around the base ERC1155 functions
+/// @dev multi token standard is used but for now we only mint a single NFT token of one type "ItemNFT"
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
@@ -63,7 +70,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
     /** Storage Data */
     address public contractOwner;      // @dev The address of the contracts owner, given by the deployment address
 
-    /// todo
+    /// todo add different types of tokens
     uint public constant ITEM_TYPE_CUSTOM = 0;
     uint public constant ITEM_TYPE_DIAMOND = 1;
     uint public constant ITEM_TYPE_RUBY = 2;
@@ -93,8 +100,8 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   /// @param _itemName - item name
   /// @param _itemDescription - item description
   /// @param _itemState - item state
-  /// @param _itemCreatorAddress - creator address (owner)
-  /// @param _itemUniqueHash - unique hash of sercet
+  /// @param _itemCreatorAddress - creator address the original owner
+  /// @param _itemOwnerAddress - current owner address
   event CreatedItemEvent(
       address _owner,
       uint _itemIndex,
@@ -102,27 +109,34 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       string _itemDescription,
       ItemState _itemState,
       address _itemCreatorAddress,
-      bytes32 _itemUniqueHash
+      address _itemOwnerAddress
   );
 
   /// @notice event log when an item has changed owner address
   /// @param _oldOwner the previous owners address
   /// @param _newOwner the new owners address
-  /// @param _oldItemState old state
   /// @param _newItemState new state
-  event ItemOwerChangedEvent(
+  event ItemOwnerChangedEvent(
       address _oldOwner,
       address _newOwner,
-      ItemState _oldItemState,
       ItemState _newItemState
   );
 
+  /// @notice event when an item has been destroyed
+  /// @param _address - owners address (will be creators address)
+  /// @param _itemIndex - index for the item mapping
+  event ItemDestroyedEvent(
+    address _address,
+    uint _itemIndex
+  );
+
+  /** Not used
   /// @notice event log when an item has been authenticated
   /// @param _owner owners address
   /// @param _itemIndex the index number of the item
   /// @param _isAuthentic boolean
-  event AuthenticateEvent(address _owner, uint _itemIndex, bool _isAuthentic);
-
+  ///  event AuthenticateEvent(address _owner, uint _itemIndex, bool _isAuthentic);
+  */
 
 /* **Modifiers** */
 
@@ -130,6 +144,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   /// @notice check that the account address is the current owner address given in the items mapping
   /// @param _accountAddress - account address
   modifier onlyItemOwner(address _accountAddress) {
+    require(_accountAddress == items[0].itemOwnerAddress);
     _;
   }
 
@@ -185,7 +200,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
         itemUniqueHash: itemUniqueHashNew,
         itemOwnerAddress: msg.sender
       });
-      items[itemCount++] = item;       // @dev use value and then ++ (so zero is first element)
+      items[itemCount++] = item;              // @dev use value and then ++ (so zero is first element)
       _mint(msg.sender, 1, 1, "ItemNFT");     // @dev for now we are just creating one of one type of NFT (todo different types)
       emit CreatedItemEvent(
           msg.sender,
@@ -194,10 +209,11 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
           items[itemCount].itemDescription,
           items[itemCount].itemState,
           items[itemCount].itemCreatorAddress,
-          items[itemCount].itemUniqueHash);
+          items[itemCount].itemOwnerAddress);
       return (newItemCreatedSuccess = true);
   }
 
+  /** Not required for safe transfer - would have been nice to pull rather than push the token */
   /* todo - unable to get a clean unit test to pass for this code - not sure why - and no time!
   /// @notice allow contract owner to approve an address so that it can transfer
   /// @param _addressToApprove - the address to approve
@@ -214,19 +230,24 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   }
   */
 
-  /// @notice todo transfer item after approval
+  /// @notice transfer item and token to new address
   /// @param _toAddress - to send to
   /// @param _itemIndex - itemIndex
   /// @return transferItemSuccess
   function transferToAddress(address _toAddress, uint _itemIndex)
      public
-     whenNotPaused
+     whenNotPaused()
      returns (bool transferItemSuccess)
   {
-     uint state = uint(items[_itemIndex].itemState);
-     if (state < 3) { items[_itemIndex].itemState = ItemState(state); } // @dev increment itemState but not to destoryed
-     items[_itemIndex].itemOwnerAddress = _toAddress;
-     safeTransferFrom(msg.sender, _toAddress, 1, 1, "");  // @dev we only have one token type (nft) and an amount of one
+     ItemState itemState_ = items[_itemIndex].itemState;
+     uint state = uint(itemState_);
+     if (state < 3) {                                          // @dev increment itemState but not to destoryed (so less than 3)
+         itemState_ = ItemState(++state);
+         items[_itemIndex].itemState = itemState_;
+     }
+     items[_itemIndex].itemOwnerAddress = _toAddress;          // @dev new address that owns the item
+     safeTransferFrom(msg.sender, _toAddress, 1, 1, "");       // @dev we only have one token type (nft) and an amount of one
+     emit ItemOwnerChangedEvent(msg.sender, _toAddress, itemState_);
      return true;
   }
 
@@ -244,9 +265,10 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       whenNotPaused()
       returns (bool itemBurntSuccess) {
         if (checkUniqueIdHash(_itemIndex, _uniqueId)) {
-            items[_itemIndex].itemName = "deleted";   /// @dev do a logicical delete
-            delete items[_itemIndex];    // @dev we do get empty mappings!
-            burn(msg.sender, 1, 1);
+            items[_itemIndex].itemName = "deleted";     // @dev mark as deleted
+            delete items[_itemIndex];                   // @dev we do get empty mappings!
+            burn(msg.sender, 1, 1);                     // @dev burn the nft token
+            emit ItemDestroyedEvent(msg.sender, _itemIndex);
             itemBurntSuccess = true;
         } else {
           itemBurntSuccess = false;
@@ -278,12 +300,11 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
      public
      view
      onlyItemOwner(msg.sender)
-     returns (bool isAuthentic) {
-     return (checkUniqueIdHash(_itemIndex, _uniqueId));
+     returns (bool isAuthentic) 
+  { return (checkUniqueIdHash(_itemIndex, _uniqueId)); }
        //isAuthentic = checkUniqueIdHash(_itemIndex, _uniqueId);
        //emit AuthenticateEvent(msg.sender, _itemIndex, isAuthentic);
        //return (true);
-   }
 
 
   /** --> Owner and History authentication functions */
@@ -298,15 +319,13 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
      public
      view
      onlyItemOwner(msg.sender)
-     returns (bool isAuthentic) {
-
-         return ( authenticateHistory(_itemIndex) && authenticateOwner(_itemIndex, _uniqueId) );
+     returns (bool isAuthentic) 
+  { return ( authenticateHistory(_itemIndex) && authenticateOwner(_itemIndex, _uniqueId) ); }
          //bool historyAuthentic = authenticateHistory(_itemIndex);
          //bool ownerAuthentic = authenticateOwner(_itemIndex, _uniqueId);
          //emit AuthenticateEvent(msg.sender, _itemIndex, isAuthentic);
          //isAuthentic = (historyAuthentic && ownerAuthentic);
          //return isAuthentic;
-  }
 
   /** --> Helper functions */
 
@@ -317,7 +336,8 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
   function checkUniqueIdHash(uint _itemIndex, string memory _uniqueId)
      public
      view
-     returns (bool isAuthentic) {
+     returns (bool isAuthentic)
+  {
        bytes32 uniqueIdHash = generateUniqueIdHash(_uniqueId);
        return (items[_itemIndex].itemUniqueHash == uniqueIdHash);
   }
@@ -329,7 +349,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
      private
      pure
      returns (bytes32 uniqueIdHash)
-     {  uniqueIdHash = keccak256(abi.encodePacked(_uniqueId));  }
+  { uniqueIdHash = keccak256(abi.encodePacked(_uniqueId)); }
 
 
 /** --> Test Helper functions */
@@ -357,7 +377,8 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       itemCount_ = itemCount;
   }
 
-    /** ERC preset functions from open zepplin (not my code!) **/
+/** ERC preset functions from open zepplin (not my code!) **/
+
     /** --> Creation function */
     /// @dev Creates `amount` new tokens for `to`, of token type `id`.  * See {ERC1155-_mint}.  * Requirements: - the caller must have the `MINTER_ROLE`.
     function mint(
@@ -373,7 +394,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
     /**
      * Not implemented (yet) - would need some extra work to consider batches - my data stucture would not support it
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] variant of {mint}.
-     *
+     */
     function mintBatch(
         address to,
         uint256[] memory ids,
@@ -382,7 +403,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
     ) public virtual {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC1155PresetMinterPauser: must have minter role to mint");
         _mintBatch(to, ids, amounts, data);
-    } */
+    } 
 
     /**
      * @dev Pauses all token transfers.
