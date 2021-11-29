@@ -35,17 +35,17 @@
 
   Did try to adopt SOLID principles as much as possible;
 
-    1) S - Adopted the single responsibility principle within functions. Not
-           so much at the contract level [single reponsibity]
-    2) O - Did extend Open Zepplin contracts without needing to alter their
-           internals. [open closed]
-    3) L - I chose to wrap existing inherited functions rather than try to override
-           them. So this was not followed. [Liskov substitution]
-    4) I - Did try initially to implement the specifications as interfaces, and
-           then implement these as solidity contracts but it proved too complex.
-           Idea was to try and adapt the interface segregation principle, but solidity
-           has some unique constraints making this more difficult than in
-           traditional (object) languages. [interface segregation]
-    5) D - My contract has tight coupling due to using inheritance, and not
-           using interfaces to provide an abstraction of the implementation
-           [dependancy inversion]
+   S - Adopted the single responsibility principle within functions. Not
+       so much at the contract level [single reponsibity]
+   O - Did extend Open Zepplin contracts without needing to alter their
+       internals. [open closed]
+   L - I chose to wrap existing inherited functions rather than try to override
+       them. So this was not followed. [Liskov substitution]
+   I - Did try initially to implement the specifications as interfaces, and
+       then implement these as solidity contracts but it proved too complex.
+       Idea was to try and adapt the interface segregation principle, but solidity
+       has some unique constraints making this more difficult than in
+       traditional (object) languages. [interface segregation]
+   D - My contract has tight coupling due to using inheritance, and not
+       using interfaces to provide an abstraction of the implementation
+       [dependancy inversion]
