@@ -69,13 +69,13 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 ***Quick Start - install and run tests locally***
 
     1) Contracts - with truffle
-      - yarn install
-      - truffle test
+       yarn install
+       truffle test
     
     2) Web App running locally with with React
-      - ./webapp/yarn install
-      - ./webapp/yarn start
-      - Open a browser at localhost:5000
+       ./webapp/yarn install
+       ./webapp/yarn start
+       Open a browser at localhost:5000
 
   ***Truffle smart contracts***
   ****Install Compile****
@@ -85,22 +85,22 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
   ****Setting up access to public networks using Infra****
       - Set the envionment variables in `.env` file in the project root directory and replace the '<PLACE_YOUR_MNEMONIC_SEED_PHRASE_HERE>' and <PLACE_YOUR_NETWORK_ID_HERE>
-      - See the example `env-example.txt` 
+      - See the example file [`env-example.txt`](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/evn-example.txt) 
 
   ****Deployment****
 
-      - truffle deploy --network ganache-cli - command line ganache on localhost:8545
-      - truffle deploy --network ganache-gui - ganache gui on localhost:7545
-      - truffle deploy --network ropsten     - ropsten public testnet
-      - truffle deploy --network rinkeby     - rinkeby public testnet
+       truffle deploy --network ganache-cli - command line ganache on localhost:8545
+       truffle deploy --network ganache-gui - ganache gui on localhost:7545
+       truffle deploy --network ropsten     - ropsten public testnet
+       truffle deploy --network rinkeby     - rinkeby public testnet
 
   ****Runing Test****
 
-      - truffle test_  - starts a local test chain on port 8040 and runs javascript tests
-      - truffle test --network ganache-cli  - runs on local ganache cli port 8545
-      - truffle test --network ganache-gui  - runs on local ganache GUI port 7545
-      - truffle test --network ropsten      - runs on ropsten public testnet (costs a fortune!)
-      - truffle test --network rinkeby      - runs on rinkeby public testnet
+       truffle test   - starts a local test chain on port 8040 and runs javascript tests
+       truffle test --network ganache-cli  - runs on local ganache cli port 8545
+       truffle test --network ganache-gui  - runs on local ganache GUI port 7545
+       truffle test --network ropsten      - runs on ropsten public testnet (costs a fortune!)
+       truffle test --network rinkeby      - runs on rinkeby public testnet
 
   ****Built with****
      - Truffle v5.4.15 (core: 5.4.15)
