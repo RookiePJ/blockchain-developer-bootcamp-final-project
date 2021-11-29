@@ -1,0 +1,19 @@
+// Env file for my infra and metamask accounts
+
+// rename to .env in truffle root
+
+// install wallet
+// npm install @truffle/hdwallet-provider
+
+// install dotenv
+// npm install dotenv
+
+// Use truffle config that goes with this
+
+MNEMONIC="<PLACE_YOUR_MNEMONIC_SEED_PHRASE_HERE>"
+
+// URLs for test networks
+INFURA_URL_ROPSTEN=https://ropsten.infura.io/v3/<PLACE_YOUR_NETWORK_ID_HERE>
+INFURA_URL_KOVAN=https://kovan.infura.io/v3/<PLACE_YOUR_NETWORK_ID_HERE>
+INFURA_URL_RINKEBY=https://rinkeby.infura.io/<PLACE_YOUR_NETWORK_ID_HERE>
+INFURA_URL_GOERLI=https://goerli.infura.io/<PLACE_YOUR_NETWORK_ID_HERE>
