@@ -23,6 +23,9 @@ pragma solidity ^0.8.0;
 // 26/11/21 | PJR | onlyItemOwner modifier              | implemented and tested
 // 26/11/21 | PJR | event when item is destroyed        | implemented event and tested
 // 26/11/21 | PJR | --> Release 1.0 <--                 | deployed onto ropsten / rinkeby testnets
+// 28/11/21 | PJR | Return something to {basic} webapp  | made itemCount public so the get method can be called from the front end
+// 28/11/21 | PJR | Return data to webapp               | created two functions to return the itemCount and itemDetails 
+// 28/11/21 | PJR | don't accept ether                  | created fallback functions with revert
 
 
 // Todo     | PJR | To reduce gas                       | reduce gas at deployment and run times
@@ -80,7 +83,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
 
 
     /// @dev hold extra information for each item token
-    uint itemCount;
+    uint public itemCount;
     mapping (uint => Item) items;  // @dev items is indexed by the item type. For now we only mint one (NFT) of each (balance=1)
     struct Item {
       string itemName;             // @dev short name
@@ -172,6 +175,9 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
 
 
     /** --> Fallback functions */
+    ///@notice currently we do not accept ether, other than gas fees, so revert
+    fallback() external payable { revert(); }
+    receive() external payable { revert(); }
 
     /** --> Creation function */
 
@@ -276,6 +282,31 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
         }
   }
 
+  /*** --> Client functions to return information <-- */
+
+  /// @notice return the item count for the front end
+  /// @notice should not really be required - but having problems getting the public itemCount in react
+  /// @return itemCountCurrent the itemCount the current value of item
+  function getItemCountCurrent()
+      public
+      view
+      whenNotPaused()
+      returns (uint itemCountCurrent) { return itemCount; }
+
+
+  /// @notice return item details for the front end client
+  /// @return itemName - item details for the item in items[_itemIndex]
+  function getItemDetails(uint _itemIndex)
+      public
+      view
+      whenNotPaused()
+      returns (string memory itemName) {
+        return items[_itemIndex].itemName;
+  }
+
+
+   /** --> History authentication function */
+
   /// @notice authenticate item history using owners {msg.sender} address
   /// -param {msg.sender} - the current owners address.
   /// @param _itemIndex index of the item to check
@@ -288,6 +319,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
        isAuthentic = (items[_itemIndex].itemCreatorAddress == contractOwner);
        //emit AuthenticateEvent(msg.sender, _itemIndex, isAuthentic);
   }
+
 
    /** --> Owner authentication function */
 

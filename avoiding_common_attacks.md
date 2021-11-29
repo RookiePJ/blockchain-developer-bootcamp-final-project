@@ -46,4 +46,4 @@
   Created fallback functions to revert if any ether is sent to the
   contract.  Currently, the contract does not accept either the
   functions are financial and therefore not payable.  Therefore other than
-  for gas fees, any ether sent in error is returned to the calling contract.  [TO DO]
+  for gas fees, any ether sent in error is returned to the calling contract. 
