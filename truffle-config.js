@@ -44,7 +44,7 @@ module.exports = {
     // When no network is specified - spin up a local one
      local: {
          host: "localhost",
-         port: 8545,
+         port: 8540,
          network_id: "*" // Match any network id
     },
 
@@ -63,7 +63,8 @@ module.exports = {
     "ganache-cli": {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
-      network_id: "*"        // Any network (default: none)
+      network_id: "*",       // Any network (default: none)
+      from: "0xD30a7d00BfCaC66047D17c882df143EeF4cbE570"
     },
 
     "ganache-gui": {
@@ -91,7 +92,8 @@ module.exports = {
        confirmations: 0,    // # of confs to wait between deployments. (default: 0)
        timeoutBlocks: 1500,  // # of blocks before a deployment times out  (minimum/default: 50)
        skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
-       networkCheckTimeout: 1000000
+       networkCheckTimeout: 1000000,    // having timeout issues
+       from: "0xD30a7d00BfCaC66047D17c882df143EeF4cbE570"
     },
 
     rinkeby: {
@@ -101,7 +103,8 @@ module.exports = {
        confirmations: 1,    // # of confs to wait between deployments. (default: 0)
        timeoutBlocks: 2000, // # of blocks before a deployment times out  (minimum/default: 50)
        skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
-       networkCheckTimeout: 1000000
+       networkCheckTimeout: 1000000,
+       from: "0xD30a7d00BfCaC66047D17c882df143EeF4cbE570"
     },
 
     kovan: {
@@ -111,7 +114,8 @@ module.exports = {
        confirmations: 1,    // # of confs to wait between deployments. (default: 0)
        timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
        skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
-       networkCheckTimeout: 1000000
+       networkCheckTimeout: 1000000,
+       from: "0xD30a7d00BfCaC66047D17c882df143EeF4cbE570"
     },
 
     goerli: {
@@ -121,16 +125,11 @@ module.exports = {
        confirmations: 1,    // # of confs to wait between deployments. (default: 0)
        timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
        skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
-       networkCheckTimeout: 1000000
-    }
+       networkCheckTimeout: 1000000,
+       from: "0xD30a7d00BfCaC66047D17c882df143EeF4cbE570"
+    },
+  },   // networks
 
-    // Useful for private networks
-    // private: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
-    // network_id: 2111,   // This network is yours, in the cloud.
-    // production: true    // Treats this network as if it was a public net. (default: false)
-    // }
-  },
 
   // Set default mocha options here, use special reporters etc.
   mocha: {

@@ -24,8 +24,11 @@ pragma solidity ^0.8.0;
 // 26/11/21 | PJR | event when item is destroyed        | implemented event and tested
 // 26/11/21 | PJR | --> Release 1.0 <--                 | deployed onto ropsten / rinkeby testnets
 // 28/11/21 | PJR | Return something to {basic} webapp  | made itemCount public so the get method can be called from the front end
-// 28/11/21 | PJR | Return data to webapp               | created two functions to return the itemCount and itemDetails 
+// 28/11/21 | PJR | Return data to webapp               | created two simple functions to return the item count and item details
 // 28/11/21 | PJR | don't accept ether                  | created fallback functions with revert
+// 29/11/21 | PJR | front end react problems            | taken onlyOwner modifer off create item - ruins the authenticate history!
+// 29/11/21 | PJR | WebApp able to create and read      | Use this code version for final project using the deployment on rinkeby
+// 29/11/21 | PJR | --> Release 2.0 <--                 | Final release.  Deployed on rinkeby testnet.
 
 
 // Todo     | PJR | To reduce gas                       | reduce gas at deployment and run times
@@ -191,7 +194,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
       string memory _itemDescription,
       string memory _uniqueId)
       public
-      onlyOwner()
+      // onlyOwner()   - taken out to get the silly front end to work!
       whenNotPaused()
       returns (bool newItemCreatedSuccess)
    {
@@ -296,6 +299,7 @@ contract ItemContract is Context, AccessControlEnumerable, ERC1155Burnable, ERC1
 
   /// @notice return item details for the front end client
   /// @return itemName - item details for the item in items[_itemIndex]
+  /// to do - add additional item details once front end works
   function getItemDetails(uint _itemIndex)
       public
       view
