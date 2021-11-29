@@ -11,7 +11,11 @@ Goods Proof.  A simple proof of authenticity for Items sold within retail.
 - This trust will be accomplished by using a "digital twin" ledger record, to represent a physical goods in order to provide proof of ownership and authenticity.
 - If the physical ownership of an item changes, its ownership can then be recorded by adding to the ownership information held on the "digital twin" ledger  record.
 
-**Problem Statement**
+**Primary Business Benefit**
+Solution for consumers to verify the authenticity of (luxury) goods.
+Items are created by their producer with a secert key which is tied to
+the physical item.  This can then be used to authenticate after item has
+been transfered to a retailer or customer.
 
 **Why (The Business case)**
 - To _help_ prevent product counterfeiting.
@@ -19,32 +23,6 @@ Goods Proof.  A simple proof of authenticity for Items sold within retail.
 - Help to mitigate safety concerns due to fake items sold which do not reach the correct safety standards.
 - Help to improve the visibility of the retail supply chain and establish a better foundation of trust between customers, retailers, and manufacturers.
 
-**Why blockchain? (The Technology Justification)**
-
-The following questions were asked(*);
-
-- 1) _Does your application require a shared database?_
-     Yes, between various actors.
-- 2) _Does the database need to support multiple writing parties?_
-     Yes, various actors will want to create new information.
-- 3) _Do the writing parties have no trust in each other?_
-     Creators and retailers will trust each other, but this trust will not exist with the customer.
-- 4) _Do the writing parties want to modify the state of the database directly, without requiring a central entity trusted by all participants?_
-     Yes, no actor can be trusted individually.
-- 5) _Do transactions that the writing parties create interact collaboratively with each other?”_
-     Yes, between each of the actors in terms of transference of ownership.
-
-Blockchain technology could ensure that customers know where the fashion products come from. In addition, the use of unique identifiers for verifying the originality of goods will offer the promising benefit of traceability. The unique identifier will help to find out where the product has been in its journey through the supply chain.
-
-**When**
-- The project deadline is the end of November 2021, 30st of November at 23:59 AoE [PST/Yankie] (1st December at 08:00 GMT).
-- Aim to have a working release at least a week before the deadline date.
-
-**Primary Business Benefit**
-Solution for consumers to verify the authenticity of (luxury) goods.
-Items are created by their producer with a secert key which is tied to
-the physical item.  This can then be used to authenticate after item has
-been transfered to a retailer or customer.
 
 **Actors / Use Cases**
 
@@ -73,10 +51,15 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
     ***Directory Stucture (normal truffle setup - with Web App in /webapp)***
 
     root -- /           - truffle project root
+            /truffle-config.js  - script config to compile/test/deploy
+            /package.json  - javascript dependancies (yarn) 
+            /contractAddress.txt - address(s) where contract is deploy
+on public network(s)
+           /design_pattern_decisions.md - design patterns usage
+           /avioding_common/attacks.md - security considerations
          -- /contracts  - smart contracts (ItemContract.sol)
          -- /test       - javascript tests (itemContract.test.js)
-         -- /migrations - truffle deployment files
-(2_deploy_ItemContract.js)
+         -- /migrations - truffle deployment files (2_deploy_ItemContract.js)
          -- /webapp     - web app (react based standard format)
             /webapp/abi - Abi for the web app
          -- /design     - design and use cases documents
