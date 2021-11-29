@@ -3,7 +3,10 @@
 ##### Ownable Access Control
   Made use of the inherited Ownable and isOwner() modifier to restrict access to
   create and delete item functions. Also used this to restrict access to
-  the pausable feature.
+  the pausable feature. 
+   _Note this onlyOwner modifier was removed in release 2.0 due to
+problems calling the create item function from the front end client.  We still have the role based access
+controll (ie mintable)_
 
 ##### AccessControlEnumerable Role Based Access
   From ERC1155 only the contract owner was given the admin, minter and
@@ -46,4 +49,4 @@
   Created fallback functions to revert if any ether is sent to the
   contract.  Currently, the contract does not accept either the
   functions are financial and therefore not payable.  Therefore other than
-  for gas fees, any ether sent in error is returned to the calling contract. 
+  for gas fees, any ether sent in error is returned to the calling contract.
