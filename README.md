@@ -50,18 +50,48 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
     ***Directory Stucture (normal truffle setup - with Web App in /webapp)***
 
-    root -- /           - truffle project root
+    root -- / - truffle project root
             /truffle-config.js  - script config to compile/test/deploy
             /package.json  - javascript dependancies (yarn) 
-            /contractAddress.txt - address(s) where contract is deploy
-on public network(s)
-           /design_pattern_decisions.md - design patterns usage
-           /avioding_common/attacks.md - security considerations
+            /deployed_address.txt - address(s) where contract is deployed on public network(s)
+            /design_pattern_decisions.md - design patterns usage
+            /avioding_common/attacks.md - security considerations
          -- /contracts  - smart contracts (ItemContract.sol)
          -- /test       - javascript tests (itemContract.test.js)
          -- /migrations - truffle deployment files (2_deploy_ItemContract.js)
          -- /webapp     - web app (react based standard format)
-            /webapp/abi - Abi for the web app
+            /webapp/src - source for client frontend
+            /webapp/abi - Abi for the web app front end
          -- /design     - design and use cases documents
+
+**Project Install and Setup**
+
+***Built with***
+
+   Truffle v5.4.15 (core: 5.4.15)
+   Solidity - ^0.8.10 (solc-js)
+   Node v16.12.0
+   Web3.js v1.5.3
+   Yarn 1.22.15
+
+
+   ***Truffle smart contracts*** 
+   ****Install Compile****
+  ` yarn install`  - to install the javascript dependancies
+  `truffle compile` - compile the smart contracts using solc-js version 0.8.10
+
+  ****Deployment ****
+  `truffle deploy --network ganache-cli` - command line ganache on
+localhost:8545
+  `truffle deploy --network ganache-gui` - ganache gui on localhost:7545
+  'truffle deploy --network ropsten'     - ropsten public testnet
+  'truffle deploy --network rinkeby'     - rinkeby public testnet
+
+  ****Runing Test****
+  `truffle test` - starts a local test chain on port 8040 and runs javascript tests 
+  `truffle test --network ganache-cli` - runs on local ganache cli port 8545
+  `truffle test --network ganache-gui` - runs on local ganache GUI port 7545
+  `truffle test --network ropsten` - runs on ropsten public testnet (costs a fortune!)
+  `truffle test --network rinkeby` - runs on rinkeby public testnet 
 
 
