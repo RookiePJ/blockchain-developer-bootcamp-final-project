@@ -74,24 +74,30 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
    Web3.js v1.5.3
    Yarn 1.22.15
 
+  ***Truffle smart contracts*** 
+  ****Install Compile****
+      ` yarn install`  - to install the javascript dependancies
+      `truffle compile` - compile the smart contracts using solc-js version 0.8.10
 
-   ***Truffle smart contracts*** 
-   ****Install Compile****
-  ` yarn install`  - to install the javascript dependancies
-  `truffle compile` - compile the smart contracts using solc-js version 0.8.10
+  ****Setting up access to public networks using Infra****
+      Set the envionment variables in `.env` file in the project root
+directory and replace the '<PLACE_YOUR_MNEMONIC_SEED_PHRASE_HERE>' and
+<PLACE_YOUR_NETWORK_ID_HERE> 
+      See the example `env-example.txt` 
 
-  ****Deployment ****
-  `truffle deploy --network ganache-cli` - command line ganache on
-localhost:8545
-  `truffle deploy --network ganache-gui` - ganache gui on localhost:7545
-  'truffle deploy --network ropsten'     - ropsten public testnet
-  'truffle deploy --network rinkeby'     - rinkeby public testnet
+  ****Deployment****
+      `truffle deploy --network ganache-cli` - command line ganache on localhost:8545
+      `truffle deploy --network ganache-gui` - ganache gui on localhost:7545
+      'truffle deploy --network ropsten'     - ropsten public testnet
+      'truffle deploy --network rinkeby'     - rinkeby public testnet
 
   ****Runing Test****
-  `truffle test` - starts a local test chain on port 8040 and runs javascript tests 
-  `truffle test --network ganache-cli` - runs on local ganache cli port 8545
-  `truffle test --network ganache-gui` - runs on local ganache GUI port 7545
-  `truffle test --network ropsten` - runs on ropsten public testnet (costs a fortune!)
-  `truffle test --network rinkeby` - runs on rinkeby public testnet 
+      `truffle test` - starts a local test chain on port 8040 and runs javascript tests 
+      `truffle test --network ganache-cli` - runs on local ganache cli port 8545
+      `truffle test --network ganache-gui` - runs on local ganache GUI port 7545
+      `truffle test --network ropsten` - runs on ropsten public testnet (costs a fortune!)
+      `truffle test --network rinkeby` - runs on rinkeby public testnet
+
+
 
 
