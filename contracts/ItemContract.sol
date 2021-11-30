@@ -31,7 +31,6 @@ pragma solidity ^0.8.0;
 // 29/11/21 | PJR | --> Release 2.0 <--                 | Final release.  Deployed on rinkeby testnet.
 // 30/11/21 | PJR | Final checklist needs SWC comments  | Added in SWC comments section for known issues. No code changes just additional comments.
 
-
 // Todo     | PJR | To reduce gas                       | reduce gas at deployment and run times
 // Todo     | PJR | Change to single struct (see below) | remove mapping, just use a single stuct item for each NFT, and then change all the tests
 // Todo     | PJR | Record ownership history            | implement some sort of history ownership
