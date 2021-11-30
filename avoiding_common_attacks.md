@@ -35,18 +35,18 @@ controll (ie mintable)_
 
 ##### Renentry
   The contract does not deal with ether, but token transfers were called
-  after internal processing was completed.
+  after internal processing was completed.  [SWC-107](https://swcregistry.io/docs/SWC-107)
 
 ##### Ensured that version 0.8.x (0.8.10) of the compiler was used.  This
   release now offers integer overflow/underflow protection when
-  performing basic mathematical operations.
+  performing basic mathematical operations. [SWC-102](https://swcregistry.io/docs/SWC-102) [SWC-103](https://swcregistry.io/docs/SWC-103)
 
 ##### Avoided tx.origin
   Always used msg. sender rather than tx. origin to ensure the correct
-  account address was being referenced.
+  account address was being referenced. [SWC-115](https://swcregistry.io/docs/SWC-115)
 
 ##### Fallback functions
   Created fallback functions to revert if any ether is sent to the
   contract.  Currently, the contract does not accept either the
   functions are not financial and therefore not payable.  Therefore other than
-  for gas fees, any ether sent in error is returned to the calling contract.
+  for gas fees, any ether sent in error is returned to the calling contract. [SWC-132](https://swcregistry.io/docs/SWC-132)

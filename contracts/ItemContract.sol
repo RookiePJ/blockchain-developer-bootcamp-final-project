@@ -29,6 +29,7 @@ pragma solidity ^0.8.0;
 // 29/11/21 | PJR | front end react problems            | taken onlyOwner modifer off create item - ruins the authenticate history!
 // 29/11/21 | PJR | WebApp able to create and read      | Use this code version for final project using the deployment on rinkeby
 // 29/11/21 | PJR | --> Release 2.0 <--                 | Final release.  Deployed on rinkeby testnet.
+// 30/11/21 | PJR | Final checklist needs SWC comments  | Added in SWC comments section for known issues. No code changes just additional comments.
 
 
 // Todo     | PJR | To reduce gas                       | reduce gas at deployment and run times
@@ -36,6 +37,7 @@ pragma solidity ^0.8.0;
 // Todo     | PJR | Record ownership history            | implement some sort of history ownership
 // Todo     | PJR | Ability to pay in ether for items   | implement payments when transfer items (not part of original scope)
 // Todo     | PJR | Keep history of deleted items       | add data stucture and implement
+// ToDo     | PJR | Suspect a few various SWC issues    | Audit it, make things more private (etc)
 
 // General notes and known issues
 // 1) The proof of historic ownership tracing back ownership is somewhat redundant as only the owner can create items.
@@ -43,6 +45,21 @@ pragma solidity ^0.8.0;
 // 2) Code has a bad smell, with too many functions with not much code. Possibly needs refactoring.
 // 3) Data stucture mapping is not really needed - should really just be a single stuct item for each NFT token!
 //    Also token data standard seems to be held off-chain in some URI JSON - todo as its now too late to rework!
+
+/// SWC - Smart Contract Weakness Classification
+/// Number  | Description                              | Avoidance in this contract
+/// SWC-115 | using tx.origin                          | I have allways uses msg.sender. Ref When required my functions call the modifier
+///         |                                          | onlyItemOwner(msg.sender) using the msg.sender value.
+/// SWC-107 | Reentry Attachs                          | I perform processing before making any external (inherited) calls.
+///         |                                          | Ref see function transferToAddress which calls safeTransfer after all local processing has been done.
+/// SWC-103 | Floating Pragma                          | Ref I set the compiler version to be 0.8.0 and upwards
+/// SWC-102 | Outdated compiler version                | Ref using a recient version of the compiler
+/// SWC-101 | Integer overflow/underflow               | Using version 0.8 which has fixed this issue (mostly)
+///         |                                          | Ref Using open zepplin safeTransfer function in transferToAddress
+/// SWC-132 | Unexpected ether balance                 | Not a payable contract, but the fallback functions revert on any ether sent
+/// SWC-136 | Unencrypted private data on chain        | A secret key used for authentication is encrypted before being stored on chain
+///         |                                          | Ref the generateUniqueIdHash which encrypts and then stores the data
+///         |                                          | Ref the checkUniqueIdHash which compaires a string parameter with the stored data
 
 /// @title Item proof of ownership contract
 /// @author Peter Rooke
