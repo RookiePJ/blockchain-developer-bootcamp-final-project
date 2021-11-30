@@ -26,22 +26,22 @@ been transfered to a retailer or customer.
 
 **Actors / Use Cases**
 
-   Creator      --> Create New Item (minting)         [contract/client]
-                --> Deliver new Item to Retailer      [contract]
-                --> Sell new Item to Customer         [contract]
-                --> Authenticate Item                 [contract]
+    Creator      --> Create New Item (minting)         [contract/client]
+                 --> Deliver new Item to Retailer      [contract]
+                 --> Sell new Item to Customer         [contract]
+                 --> Authenticate Item                 [contract]
 
-   Retailer     --> Receive Item from Creator         [contract]
-                --> Return Item to Creator, if faulty [contract]
-                --> Sell Item to Customer             [contract]
-                --> Authenticate Item                 [contract]
+    Retailer     --> Receive Item from Creator         [contract]
+                 --> Return Item to Creator, if faulty [contract]
+                 --> Sell Item to Customer             [contract]
+                 --> Authenticate Item                 [contract]
 
-   Customer     --> Purchase Item                     [contract]
-                --> Resell or transfer Item to new Customer [contract]
-                --> Replace/Refunded Item, if item proven to be faulty and original returned [contract]
-                --> Authenticate Item i               [contract]
+    Customer     --> Purchase Item                     [contract]
+                 --> Resell or transfer Item to new Customer [contract]
+                 --> Replace/Refunded Item, if item proven to be faulty and original returned [contract]
+                 --> Authenticate Item i               [contract]
 
-   Admin        --> Stop deployed software (fatal issue found) [contract]
+    Admin        --> Stop deployed software (fatal issue found) [contract]
 
 Please see inital [business case](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/design/DESIGN.md) for more information.
 
@@ -119,9 +119,10 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
    - [Security concerns](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/avoiding_common_attacks.md)
    - [Design Pattern Usage](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/design_pattern_decisions.md)
-   - Frontend Video (if I ever get it working!) [Test Video 1](https://youtu.be/I_F7qf-MGzQ)
-   - Frontend URL (not sure - if React runs locally?)
-   - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
+   - Client frontend Video of screen cast  [Test Video 1 On YouTube](https://youtu.be/I_F7qf-MGzQ)
+   - Client frontend URL (not sure - if React runs locally?)
+   - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/deployed_address.txt)
+   -                                                  [Rinkeby Etherscan](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
    - [Unit test results](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/test/testResults/ItemContract.sol.test.results.29-Nov-21.23:30.txt)
    - Address for Consensys certificate: [0x835786aefB80899E024E96Ca690EcDE1303143E3](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/certificateAddress/certificateAddressEthereum.jpg)
 
