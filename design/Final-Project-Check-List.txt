@@ -20,11 +20,12 @@ Please answer the following questions. Does your project:
 6. Contain a `deployed_address.txt` file which contains the testnet address and network where your contract(s) have been deployed? YES
 
 7. Have a frontend interface built with a framework like React or HTML/CSS/JS that:
---Detects the presence of MetaMask
---Connects to the current account
---Displays information from your smart contract
---Allows a user to submit a transaction to update smart contract state
---Updates the frontend if the transaction is successful or not? YES
+--Detects the presence of MetaMask - yes (button)
+--Connects to the current account  - yes
+--Displays information from your smart contract - yes - (pjr) but for this click the second button to reteive information*
+--Allows a user to submit a transaction to update smart contract state - (pjr) yes, create a new NFT item
+--Updates the frontend if the transaction is successful or not? (pjr) yes displays a the name of the newly created item YES
+* the original idea was to create a new item and then display the results, but you can retieve the previous item first before creating a new one.
 
 8. Hosted on Github Pages, Heroku, Netlify, Fleek, or some other free frontend service that gives users a public interface to your decentralized application? (That address should be in your README.md document) YES
 
