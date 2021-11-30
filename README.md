@@ -115,7 +115,7 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
    - [Security concerns](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/avoiding_common_attacks.md)
    - [Design Pattern Usage](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/design_pattern_decisions.md)
-   - Frontend Video (if I ever get it working!)
+   - Frontend Video (if I ever get it working!) [Test Video 1](https://youtu.be/I_F7qf-MGzQ)
    - Frontend URL (not sure - if React runs locally?)
    - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
    - [Unit test results](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/test/testResults/ItemContract.sol.test.results.29-Nov-21.23:30.txt)
