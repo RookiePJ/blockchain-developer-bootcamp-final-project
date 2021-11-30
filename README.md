@@ -73,19 +73,19 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
        git clone https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project.git
 
     1) Contracts - with truffle
-       yarn install
-       truffle test
+       yarn install    (install javascript dependancies)
+       truffle test    (runs tests after starting a local testnet on port 8040)
     
     2) Web App running locally with with React
-       ./webapp/yarn install
-       ./webapp/yarn start
-       Open a browser at [localhost:5000](http:localhost:5000) _but not safari_
+       ./webapp/yarn install    (installs javascript dependancies)
+       ./webapp/yarn start      (starts react webapp)
+       Open a browser at [localhost:5000](http:localhost:5000) 
 
   ***Truffle smart contracts***
   ****Install Compile****
 
-      yarn install     - to install the javascript dependancies
-      truffle compile  - compile the smart contracts using solc-js version 0.8.10
+      yarn install     (to install the javascript dependancies)
+      truffle compile  (compile the smart contracts using solc-js version 0.8.10)
 
   ****Setting up access to public networks using Infra****
       - Set the envionment variables in `.env` file in the project root directory and replace the '<PLACE_YOUR_MNEMONIC_SEED_PHRASE_HERE>' and <PLACE_YOUR_NETWORK_ID_HERE>
@@ -93,18 +93,18 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
   ****Deployment****
 
-       truffle deploy --network ganache-cli - command line ganache on localhost:8545
-       truffle deploy --network ganache-gui - ganache gui on localhost:7545
-       truffle deploy --network rinkeby     - rinkeby public testnet
-       truffle deploy --network ropsten     - ropsten public testnet
+       truffle deploy --network ganache-cli  (deploy onto command line Ganache running on localhost:8545)
+       truffle deploy --network ganache-gui  (deploy onto Ganache GUI running on localhost:7545)
+       truffle deploy --network rinkeby      (deploy onto the rinkeby public testnet)
+       truffle deploy --network ropsten      (deploy onto the ropsten public testnet)
 
   ****Runing Test****
 
-       truffle test   - starts a local test chain on port 8040 and runs javascript tests
-       truffle test --network ganache-cli  - runs on local ganache cli port 8545
-       truffle test --network ganache-gui  - runs on local ganache GUI port 7545
-       truffle test --network rinkeby      - runs on rinkeby public testnet
-       truffle test --network ropsten      - runs on ropsten public testnet (costs a fortune!)
+       truffle test   (starts a local test chain on port 8040 and then runs the javascript tests)
+       truffle test --network ganache-cli  (runs tests on a local ganache cli port 8545)
+       truffle test --network ganache-gui  (runs tests on a local ganache GUI port 7545)
+       truffle test --network rinkeby      (runs tests on the rinkeby public testnet)
+       truffle test --network ropsten      (runs tests on the ropsten public testnet [costs a fortune!])
 
   ****Built with****
      - Truffle v5.4.15 (core: 5.4.15)
@@ -124,6 +124,4 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
    - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
    - [Unit test results](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/test/testResults/ItemContract.sol.test.results.29-Nov-21.23:30.txt)
    - Address for Consensys certificate: [0x835786aefB80899E024E96Ca690EcDE1303143E3](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/certificateAddress/certificateAddressEthereum.jpg)
-
-
 
