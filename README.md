@@ -80,6 +80,8 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
        ./webapp/yarn install    (installs javascript dependancies)
        ./webapp/yarn start      (starts react webapp)
        Open a browser at [localhost:5000](http:localhost:5000) 
+    
+  The client web application hosted on [On GitHub Pages](https://rookiepj.github.io/item-contract-demo/)
 
   ***Truffle smart contracts***
   ****Install Compile****
@@ -122,7 +124,7 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
    - Client frontend Video of screen cast [Screen Cast on Youtube](https://youtu.be/XRQ27ee4Fqw)  [Screen Cast On IPFS](https://ipfs.io/ipfs/QmQj9kcthWDhv72aVjtHHfSoDAryCedd6AcvycP97vfBGW) [Test Video 1 On YouTube](https://youtu.be/I_F7qf-MGzQ)
    - Client frontend URL [On GitHub Pages](https://rookiepj.github.io/item-contract-demo/)
    - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/deployed_address.txt)
-   - Public contractg address on [Rinkeby Etherscan](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
+   - Public contract address on [Rinkeby Etherscan](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
    - [Unit test results](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/test/testResults/ItemContract.sol.test.results.29-Nov-21.23:30.txt)
    - Address for Consensys certificate: [0x835786aefB80899E024E96Ca690EcDE1303143E3](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/certificateAddress/certificateAddressEthereum.jpg)
 
