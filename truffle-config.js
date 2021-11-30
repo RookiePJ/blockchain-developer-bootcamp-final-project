@@ -173,5 +173,5 @@ module.exports = {
     // }
   // }
   // "npm install truffle-plugin-debugger" and then "truffle run debug start test"
-  plugins: [ "truffle-plugin-debugger" ]
+  //  plugins: [ "truffle-plugin-debugger" ]
 };
