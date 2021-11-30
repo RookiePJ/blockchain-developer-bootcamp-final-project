@@ -110,12 +110,15 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
      - Yarn 1.22.15
 
 ***Supporting Documents***
-     - Frontend Video (if I ever get it working!)
-     - Frontend URL (not sure - if React runs locally?)
+
      - [Security concerns](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/avoiding_common_attacks.md)
      - [Design Pattern
        Usage](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/design_pattern_decisions.md)
-     - [Public address where smart contract is
+     - Frontend Video (if I ever get it working!)
+     - Frontend URL (not sure - if React runs locally?)
+     - [Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
        deployed](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/deployed_address.txt)
+     - Address for Consensys certificate: [0x835786aefB80899E024E96Ca690EcDE1303143E3](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/certificateAddress/certificateAddressEthereum.jpg)
+
 
 
