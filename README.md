@@ -119,7 +119,7 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
    - [Security concerns](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/avoiding_common_attacks.md)
    - [Design Pattern Usage](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/design_pattern_decisions.md)
-   - Client frontend Video of screen cast  [Test Video 1 On YouTube](https://youtu.be/I_F7qf-MGzQ)
+   - Client frontend Video of screen cast [Screen Cast on Youtube](https://youtu.be/XRQ27ee4Fqw)  [Screen Cast On IPFS](https://ipfs.io/ipfs/QmQj9kcthWDhv72aVjtHHfSoDAryCedd6AcvycP97vfBGW) [Test Video 1 On YouTube](https://youtu.be/I_F7qf-MGzQ)
    - Client frontend URL (not sure - if React runs locally?)
    - Public address where smart contract is deployed: [0x42851cD309381Cb82ecF509B29bc1bf2A96fc123](https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project/blob/main/deployed_address.txt)
    - Public contractg address on [Rinkeby Etherscan](https://rinkeby.etherscan.io/address/0x42851cD309381Cb82ecF509B29bc1bf2A96fc123)
