@@ -65,8 +65,12 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
          -- /design     - design and use cases documents
 
 **Project Install and Setup**
+    _All scripts run from project root directory_
 
 ***Quick Start - install and run tests locally***
+
+    0) Clone repository
+       git clone https://github.com/RookiePJ/blockchain-developer-bootcamp-final-project.git
 
     1) Contracts - with truffle
        yarn install
@@ -75,7 +79,7 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
     2) Web App running locally with with React
        ./webapp/yarn install
        ./webapp/yarn start
-       Open a browser at localhost:5000
+       Open a browser at [localhost:5000](http:localhost:5000) _but not safari_
 
   ***Truffle smart contracts***
   ****Install Compile****
@@ -91,16 +95,16 @@ Please see inital [business case](https://github.com/RookiePJ/blockchain-develop
 
        truffle deploy --network ganache-cli - command line ganache on localhost:8545
        truffle deploy --network ganache-gui - ganache gui on localhost:7545
-       truffle deploy --network ropsten     - ropsten public testnet
        truffle deploy --network rinkeby     - rinkeby public testnet
+       truffle deploy --network ropsten     - ropsten public testnet
 
   ****Runing Test****
 
        truffle test   - starts a local test chain on port 8040 and runs javascript tests
        truffle test --network ganache-cli  - runs on local ganache cli port 8545
        truffle test --network ganache-gui  - runs on local ganache GUI port 7545
-       truffle test --network ropsten      - runs on ropsten public testnet (costs a fortune!)
        truffle test --network rinkeby      - runs on rinkeby public testnet
+       truffle test --network ropsten      - runs on ropsten public testnet (costs a fortune!)
 
   ****Built with****
      - Truffle v5.4.15 (core: 5.4.15)
